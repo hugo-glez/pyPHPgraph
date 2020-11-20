@@ -26,10 +26,26 @@
 
 import re
 
+
+def getPath(filenamec):
+    pat = '/'.join(filenamec.split('/')[:-1])
+    if len(pat) == 0:
+        pat='./'
+    if pat[-1] != '/':
+        pat += '/'
+    if pat[1] != '/':
+        pat = pat[1:]   
+    return pat
+
 def processline (line):
     #print(line)
     sp = line.split('"')
     lin1 = sp[-1]
+    if lin1.find("'")>1:
+        sp3 = lin1.split("'")
+        lin1 = sp3[-1]
+        actio = sp3[-2]
+    
     if lin1.find(" ") >1 :
         sp2 = lin1.split(" ")
         lin1 = sp2[-1]
@@ -46,11 +62,9 @@ def processline (line):
     return (actio.strip(), lin1.strip())
 
 def procfile (file1,ref):
-    
-    pat = '.'+"/".join(ref.split('/')[:-1])
-    pat += '/'
-    if pat[1] != '/':
-        pat = pat[1:]
+
+    #pat = getPath(ref)
+    pat=''
     print("#",pat+file1)
     try:
         txt = open(pat+file1,'r').read()
@@ -59,10 +73,15 @@ def procfile (file1,ref):
         return -1
     finds = re.findall(".*\.php", txt)
     links = []
+    pat2 = getPath(file1)
+    
     for ff in finds:
-        #links.append(processline(ff))
+        #links.append(processline(ff, pat2))
         ac, lin = processline(ff)
-        links.append((ac,pat+lin))
+        if lin.find('../') == -1 and lin[0]!='/':
+            lin = pat2+lin
+        links.append((ac,lin))
+        
     return links
 
 def main(princfile):
@@ -75,11 +94,13 @@ def main(princfile):
                     
                 if va[0] == '/' : # absolute reference
                     print(va, "Absolute_reference_from ", ref)
+                elif va.find('../') >= 0:
+                    print(va, "Not_checking_UP", ref)
                     
                 else:
                     links = procfile(va, ref)
                     if links == -1: # that means file not found
-                        print(va, "File_NOT FOUND")
+                        print(va, "File_NOT_FOUND", ref)
                     else:
                         if len(links) == 0:
                             print(va, "NO LINKS")
