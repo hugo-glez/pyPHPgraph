@@ -65,7 +65,7 @@ def procfile (file1,ref):
 
     #pat = getPath(ref)
     pat=''
-    print("#",pat+file1)
+    #print("#",pat+file1)
     try:
         txt = open(pat+file1,'r').read()
     except:
@@ -93,26 +93,30 @@ def main(princfile):
             if va not in visited:
                     
                 if va[0] == '/' : # absolute reference
-                    print(va, "Absolute_reference_from ", ref)
+                    print("//", va, "Absolute_reference_from ", ref)
                 elif va.find('../') >= 0:
-                    print(va, "Not_checking_UP", ref)
+                    print("//", va, "Not_checking_UP", ref)
                     
                 else:
                     links = procfile(va, ref)
                     if links == -1: # that means file not found
-                        print(va, "File_NOT_FOUND", ref)
+                        #print("//",va, "File_NOT_FOUND", ref)
+                        print('\t"',va, '" -> "File_NOT_FOUND"')
                     else:
                         if len(links) == 0:
-                            print(va, "NO LINKS")
+                            print('\t"', va, '" -> "NO_LINKS"')
                         else:
                             for r in links:
                                 ac, vi = r
-                                print (va, ac, vi )
+                                #print ("//",va, ac, vi )
+                                print ('\t"', va, '" -> "', vi, '"' )
                                 if vi not in visited and (vi,va) not in tovisit:
                                    tovisit.append((vi,va))
             tovisit.remove((va,ref))
             visited.append(va)
                         
 
+print("digraph D {")
 main('./index.php')            
+print("}")
             
